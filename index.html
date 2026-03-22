@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Google Drive</title> <!-- Tab Camouflage -->
+    <link rel="icon" type="image/x-icon" href="https://ssl.gstatic.com">
+    
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+
+    <style>
+        :root { 
+            --primary: #ffffff; 
+            --accent: #0072ff; 
+            --bg: #000000; 
+            --glass: rgba(12, 12, 18, 0.85);
+        }
+
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            overflow: hidden; font-family: 'Outfit', sans-serif; 
+            background: var(--bg); color: white; 
+            display: flex; justify-content: center; align-items: center; 
+        }
+
+        #bg-canvas { position: absolute; top: 0; left: 0; z-index: 0; }
+
+        .scanline {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 100; background-size: 100% 2px, 3px 100%; pointer-events: none;
+        }
+
+        .logo-wrap {
+            position: relative; width: 80px; height: 80px; margin: 0 auto 30px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .logo-c {
+            width: 50px; height: 50px; border: 4px solid var(--primary);
+            border-left-color: transparent; border-radius: 50%;
+            transform: rotate(-45deg);
+            box-shadow: 0 0 25px var(--accent);
+            animation: spin 6s linear infinite;
+        }
+        .logo-dot {
+            position: absolute; width: 10px; height: 10px; background: var(--accent);
+            border-radius: 50%; box-shadow: 0 0 15px var(--accent);
+        }
+
+        @keyframes spin { 100% { transform: rotate(315deg); } }
+
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 4px; 
+            padding: 70px 50px;
+            width: 440px;
+            text-align: center;
+            box-shadow: 0 0 80px rgba(0, 0, 0, 1);
+            z-index: 10;
+            animation: cosmicEntrance 1.5s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        @keyframes cosmicEntrance { from { opacity: 0; letter-spacing: 20px; transform: scale(1.1); } to { opacity: 1; letter-spacing: normal; transform: scale(1); } }
+
+        .brand {
+            font-family: 'Syncopate', sans-serif;
+            font-weight: 700; font-size: 24px;
+            letter-spacing: 8px; margin-bottom: 5px;
+        }
+
+        .status { 
+            font-size: 10px; color: var(--accent); letter-spacing: 4px;
+            text-transform: uppercase; margin-bottom: 50px; font-weight: 600;
+        }
+
+        input {
+            width: 100%; padding: 18px; border-radius: 2px; border: none;
+            background: rgba(255, 255, 255, 0.03); color: white; outline: none; box-sizing: border-box;
+            font-family: inherit; font-size: 14px; border: 1px solid rgba(255,255,255,0.05);
+            transition: 0.4s; margin-bottom: 25px;
+        }
+
+        input:focus { border-color: var(--accent); background: rgba(0, 114, 255, 0.05); }
+
+        button {
+            width: 100%; padding: 18px; border-radius: 2px; border: 1px solid white; 
+            cursor: pointer; background: white; color: black; 
+            font-family: 'Syncopate', sans-serif; font-weight: 700; font-size: 11px; 
+            letter-spacing: 4px; transition: 0.5s;
+        }
+
+        button:hover { 
+            background: transparent; color: white; 
+            box-shadow: 0 0 30px var(--accent);
+            letter-spacing: 6px;
+        }
+
+        .panic-info { margin-top: 40px; font-size: 10px; color: rgba(255, 255, 255, 0.2); letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+    <div class="scanline"></div>
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="glass-panel">
+        <div class="logo-wrap">
+            <div class="logo-c"></div>
+            <div class="logo-dot"></div>
+        </div>
+        <div class="brand">BLACKCOSMOS</div>
+        <div class="status">TUNNEL_ACTIVE_v8.4</div>
+        
+        <input type="text" id="urlInput" placeholder="DESTINATION_HOST (e.g. google.com)">
+        
+        <button id="launch">ENGAGE VOID</button>
+        
+        <p class="panic-info">EXEC_PANIC [ <b> \ </b> ] REDIRECT_CLASSROOM</p>
+    </div>
+
+    <script>
+        // Reactive Starfield Background
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+        let mouse = { x: 0, y: 0 };
+
+        const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+        window.onresize = resize; resize();
+        window.onmousemove = (e) => { mouse.x = e.clientX; mouse.y = e.clientY; };
+
+        class Star {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5;
+                this.baseX = this.x; this.baseY = this.y;
+            }
+            update() {
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 100) {
+                    this.x -= dx/20; this.y -= dy/20;
+                } else {
+                    if (this.x !== this.baseX) this.x += (this.baseX - this.x)/20;
+                    if (this.y !== this.baseY) this.y += (this.baseY - this.y)/20;
+                }
+            }
+            draw() {
+                ctx.fillStyle = "white";
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+            }
+        }
+
+        for(let i=0; i<300; i++) stars.push(new Star());
+
+        const animate = () => {
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            stars.forEach(s => { s.update(); s.draw(); });
+            requestAnimationFrame(animate);
+        };
+        animate();
+
+        // --- BLACKCOSMOS CORE LOGIC ---
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "\\") window.location.href = "https://classroom.google.com";
+        });
+
+        document.getElementById('launch').onclick = function() {
+            let site = document.getElementById('urlInput').value.trim();
+            
+            // Cleanup: remove protocol and trailing slashes
+            site = site.replace(/^https?:\/\//, '').replace(/\/$/, '');
+            
+            if (!site) return alert("Enter a valid host.");
+
+            // The Path Rewrite on the backend needs a trailing slash to identify the root
+            const proxyPath = window.location.origin + "/proxy/" + site + "/";
+            
+            const win = window.open('about:blank', '_blank');
+            const doc = win.document;
+
+            const iframe = doc.createElement('iframe');
+            iframe.src = proxyPath;
+            iframe.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:9999;";
+            
+            const panicScript = doc.createElement('script');
+            panicScript.textContent = "document.addEventListener('keydown',e=>{if(e.key==='\\\\')window.location.href='https://classroom.google.com'});";
+
+            doc.body.style.margin = "0";
+            doc.body.appendChild(iframe);
+            doc.body.appendChild(panicScript);
+        };
+    </script>
+</body>
+</html>

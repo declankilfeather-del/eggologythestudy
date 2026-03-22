@@ -1,0 +1,9 @@
+{
+  "name": "nexus-hub-proxy",
+  "version": "1.0.0",
+  "main": "api/index.js",
+  "dependencies": {
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6"
+  }
+}
